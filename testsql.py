@@ -64,11 +64,14 @@ class CreateXml() :
     allowEmail = 'Да'
     managerName = 'Иван Алексеев'
     contactPhone = '89995862639'
+    contactMethod = 'only-chat'
     address = 'Россия, Челябинская область, Челябинск, Ленина улица , 18'
     category = 'Одежда, обувь, аксессуары'
     goodsType = 'Мужская одежда'
     apparel = 'Обувь'
     condition = 'Новое'
+    yandexCondition = 'new'
+    yandexCategory = 'Обувь'
 
     #Данная выгрузка подходит также и под Яндекс Объявления
     def avito(self) -> None :
@@ -133,6 +136,57 @@ class CreateXml() :
         tree.write(exportFilename, pretty_print=True, xml_declaration=True,   encoding="utf-8")
         print('ready')
         #print (et.tostring(root, pretty_print=True).decode("utf-8")) 
+
+    def yandex(self) -> None :
+        exportFilename = 'c://Users//ilya.chuiko//Desktop//yandexExport.xml'
+        root = et.Element('feed', version='1')
+        offers = et.SubElement(root, 'offers')
+
+        with open(self.jsonFilename, 'r') as file:
+            data = json.loads(file.read())
+
+            for item in data :
+
+                offer = et.SubElement(offers, 'offer')
+
+                productId = et.SubElement(offer, 'id')
+                productId.text = data[item]['id']
+
+                seller = et.SubElement(offer, 'seller')
+                contacts = et.SubElement(seller, 'contacts')
+                contactMethod = et.SubElement(contacts, 'contact-method')
+                contactMethod.text = self.contactMethod
+
+                locations = et.SubElement(seller, 'locations')
+                location = et.SubElement(locations,'location')
+                address = et.SubElement(location, 'address')
+                address.text = self.address
+
+                title = et.SubElement(offer, 'title')
+                title.text = data[item]['title']
+
+                description = et.SubElement(offer, 'description')
+                description.text = data[item]['description']
+
+                condition = et.SubElement(offer, 'condition')
+                condition.text = self.yandexCondition
+
+                category = et.SubElement(offer, 'category')
+                category.text = self.yandexCategory
+
+                images = et.SubElement(offer, 'images')
+                imageList = data[item]['photos']
+
+                for image in imageList :
+                    tag = et.SubElement(images, 'image')
+                    tag.text = image
+
+                price = et.SubElement(offer, 'price')
+                price.text = str(data[item]['price'])
+        
+        tree = et.ElementTree(root)
+        tree.write(exportFilename, pretty_print=True, xml_declaration=True,   encoding="utf-8")
+        print('ready')
 
 
 class Parser() :
